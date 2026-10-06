@@ -1,0 +1,3 @@
+# Direct dependency, verified with Python 3.12. See requirements-lock.txt for exact transitive versions.
+langgraph==1.2.12
+langsmith==0.14.4
