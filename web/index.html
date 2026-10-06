@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AgentLoop Studio · Inspect every decision</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/" aria-label="AgentLoop Studio home"
+        ><span class="brand-icon">↻</span> AgentLoop <strong>Studio</strong></a
+      >
+      <div class="header-meta">
+        <span class="live-dot"></span> LOCAL WORKSPACE
+        <span class="tag">LANGGRAPH</span>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">OBSERVABLE AGENT ENGINEERING</p>
+          <h1>From intent to <em>evidence.</em></h1>
+          <p class="intro">
+            Follow every decision. Inspect every observation.<br />An agent loop
+            you can explain, replay, and trust.
+          </p>
+        </div>
+        <div class="hero-note">
+          <span>01 — INVESTIGATION LAB</span>
+          <p>Android editor performance</p>
+          <small>Synthetic telemetry · Local simulation</small>
+        </div>
+      </section>
+      <section class="loop-panel" aria-label="Agent lifecycle">
+        <div class="section-top">
+          <h2>The agent loop</h2>
+          <span id="engine-state">READY TO INVESTIGATE</span>
+        </div>
+        <div id="stages" class="stages"></div>
+      </section>
+      <div class="workspace">
+        <aside>
+          <section class="panel">
+            <div class="section-top">
+              <h2>Launch an investigation</h2>
+              <span class="mini">01</span>
+            </div>
+            <form id="launch-form">
+              <label for="goal">USER GOAL</label
+              ><textarea id="goal" rows="3" maxlength="2000" required>
+Investigate the Android editor latency regression and propose a reversible fix.</textarea
+              ><label for="scenario">SCENARIO</label
+              ><select id="scenario"></select>
+              <div class="two-fields">
+                <div>
+                  <label for="planner">PLANNER</label
+                  ><select id="planner">
+                    <option value="demo">Demo · no API key</option>
+                    <option value="ollama">Ollama · local LLM</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="budget">STEP BUDGET</label
+                  ><input
+                    id="budget"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value="8"
+                    required
+                  />
+                </div>
+              </div>
+              <button class="primary full" id="start" type="submit">
+                Start investigation <span>↗</span>
+              </button>
+            </form>
+            <p class="hint">
+              Demo mode follows a deterministic incident policy. Ollama uses
+              your configured local model. Both run through LangGraph.
+            </p>
+          </section>
+          <section class="panel memory-panel">
+            <div class="section-top">
+              <h2>State & memory</h2>
+              <span id="memory-count" class="counter">0</span>
+            </div>
+            <div class="state-line">
+              <span>Checkpoint</span><b id="checkpoint">Waiting for a run</b>
+            </div>
+            <div class="state-line">
+              <span>Evidence collected</span
+              ><b id="evidence-count">0 sources</b>
+            </div>
+            <div class="state-line">
+              <span>Historical hints</span><b id="hint-count">0</b>
+            </div>
+            <p class="hint">
+              Successful investigations persist as hints. Every new run
+              revalidates current evidence.
+            </p>
+            <details>
+              <summary>Inspect current state</summary>
+              <pre id="state-json">{}</pre>
+            </details>
+          </section>
+          <section class="panel">
+            <div class="section-top">
+              <h2>Recent investigations</h2>
+              <button class="text-button" id="refresh" type="button">
+                Refresh
+              </button>
+            </div>
+            <div id="history" class="history">
+              <p class="hint">Your saved runs will appear here.</p>
+            </div>
+          </section>
+        </aside>
+        <div class="main-column">
+          <section class="metrics" aria-label="Run metrics">
+            <div>
+              <span>RUN STATUS</span><strong id="status">Idle</strong
+              ><small id="run-id">No active run</small>
+            </div>
+            <div>
+              <span>DECISION STEPS</span><strong id="steps">0 <i>/ 8</i></strong
+              ><small>Bounded execution</small>
+            </div>
+            <div>
+              <span>EVIDENCE SCORE</span><strong id="score">—</strong
+              ><small>Deterministic final gate</small>
+            </div>
+            <div>
+              <span>MODEL TOKENS</span><strong id="tokens">0</strong
+              ><small id="mode-label">Demo policy</small>
+            </div>
+          </section>
+          <div id="error" class="error" role="alert" hidden></div>
+          <section id="approval" class="approval" hidden>
+            <div>
+              <p class="eyebrow">HUMAN APPROVAL REQUIRED</p>
+              <h2>Run the canary simulation?</h2>
+              <p>
+                This records a local simulation of asynchronous image decoding.
+                Review the proposal before continuing.
+              </p>
+              <details>
+                <summary>Review proposal</summary>
+                <pre id="proposal-json"></pre>
+              </details>
+            </div>
+            <div class="approval-actions">
+              <button class="primary" id="approve">Approve simulation</button
+              ><button class="secondary" id="deny">Deny & stop</button>
+            </div>
+          </section>
+          <section class="panel trace-panel">
+            <div class="section-top">
+              <div>
+                <h2>Execution trace</h2>
+                <p class="hint">A durable record of what happened and why.</p>
+              </div>
+              <div class="trace-controls">
+                <button class="secondary" id="step" disabled>Step once</button
+                ><button class="primary" id="play" disabled>
+                  Run to checkpoint</button
+                ><button
+                  class="icon-button"
+                  id="export"
+                  title="Download run and event trace"
+                  aria-label="Download run and event trace"
+                  disabled
+                >
+                  ↓
+                </button>
+              </div>
+            </div>
+            <div id="trace" class="trace" aria-live="polite">
+              <div class="empty">
+                <div class="empty-orbit">↻</div>
+                <h3>Your next investigation starts here.</h3>
+                <p>
+                  Launch a scenario to see the complete agent lifecycle.<br />Each
+                  tool result becomes evidence for the next decision.
+                </p>
+              </div>
+            </div>
+          </section>
+          <section id="result" class="panel result" hidden>
+            <div class="section-top">
+              <h2>Investigation outcome</h2>
+              <span class="tag">EVIDENCE FIRST</span>
+            </div>
+            <p id="result-summary"></p>
+            <div id="checks" class="checks"></div>
+            <p class="hint" id="citations"></p>
+          </section>
+        </div>
+      </div>
+      <footer>
+        <span>AGENTLOOP STUDIO</span>
+        <p>
+          LangGraph orchestration · SQLite persistence · Explicit policy gates
+        </p>
+        <span>BUILT TO BE INSPECTED ↗</span>
+      </footer>
+    </main>
+  </body>
+</html>
